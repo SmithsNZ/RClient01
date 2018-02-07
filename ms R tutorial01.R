@@ -1,4 +1,5 @@
 # From Git?
+#and back from home....
 
 # https://docs.microsoft.com/en-gb/machine-learning-server/r/tutorial-r-to-revoscaler
 # https://www.stat.berkeley.edu/~nolan/stat133/Fall05/lectures/RegEx.html
