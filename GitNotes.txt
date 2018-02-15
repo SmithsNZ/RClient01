@@ -1,0 +1,58 @@
+## UPDATE REMOTE REPOSITORY
+
+# open git bash there from explorer
+
+git add .               # track all file add changes to index
+git commit -m "A1758"   # commit changes to local repository
+git push                # push local changes to remote repository  
+
+# useful 
+git status              # show differences between local files and local repostory
+
+## FIRST TIME
+
+http://ebb.org/bkuhn/blog/2011/01/23/git-shared-repository-tutorial.html
+
+create repository on www.git 
+(look a bare option later and checkout to discard changes)
+
+new directory in explorer
+open git bash there from explorer
+
+# check all is well
+git --version
+git config --global user.name
+git config --global user.email
+
+#first time
+#clone remote repository (creates folder for repository)
+
+git clone https://github.com/SmithsNZ/RClient01.git
+
+#may need to cd to repository file
+
+#show local (green) and remote(red) branchesgit branch -a
+
+#orgin is default name of repository you cloned from
+# origin/branch branch in that repository
+
+-- ? git checkout master
+
+# add changes to index
+git add .
+
+git status
+
+#commit snapshot of changes to local repository
+git commit -m "A1758"
+
+#update remote repository
+git push
+
+# get in sync
+
+git pull origin
+git status
+
+# see commit changes with log -p for patch text, -2 for last few changes
+git log
