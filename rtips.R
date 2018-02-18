@@ -1,10 +1,11 @@
 # https://www.tidyverse.org/package
+# r4ds.had.co.nz/index.html
 # https://blogs.msdn.microsoft.com/mlserver/2017/04/14/get-sentiment-with-a-pre-trained-model/
 # https://cran.r-project.org/doc/manuals/r-devel/R-lang.pdf
 
 
 dice <- c(20, 28, 12, 32, 22, 36) # number of times 1-6 rolled
-chisq.test(dice) # p of getting numbers if dice was far== 0.009, X-squared == 15, would be 0 if dice was fair!
+chisq.test(dice) # p of getting numbers if dice was fair== 0.009, X-squared == 15, would be 0 if dice was fair!
 
 # +, -, *, ^(**), /, %%
 # <-, ==, !=, <, >, >=

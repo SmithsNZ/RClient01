@@ -9,6 +9,10 @@ git push                # push local changes to remote repository
 # useful 
 git status              # show differences between local files and local repostory
 
+## UPDATE LOCAL REPOSITORY
+
+git pull origin
+
 ## FIRST TIME
 
 http://ebb.org/bkuhn/blog/2011/01/23/git-shared-repository-tutorial.html
@@ -19,10 +23,10 @@ create repository on www.git
 new directory in explorer
 open git bash there from explorer
 
-# check all is well
+# setup defaults
 git --version
-git config --global user.name
-git config --global user.email
+git config --global user.name "SmithsNZ"
+git config --global user.email "smithsnz@gmail.com"
 
 #first time
 #clone remote repository (creates folder for repository)
