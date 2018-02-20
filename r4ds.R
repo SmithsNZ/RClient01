@@ -41,6 +41,9 @@
 # package 'xml2' successfully unpacked and MD5 sums checked
 # package 'tidyverse' successfully unpacked and MD5 sums checked
 
+
+# VISUALISE
+
 library(tidyverse)
 # data.frame observations == rows, variables == columns
 mpg # built in see ?mpg
@@ -48,7 +51,15 @@ mpg # built in see ?mpg
 # explore data by visualising geometric object
 # ggplot creates coord system you then add layers to (like geom_point forscatter plot)
 # geom fn takes mapping param to link visual aesthetic property to data variable
+
+# scatter chart of points
 ggplot(data=mpg) + geom_point(mapping=aes(x=displ, y=hwy))
+
+# note can add 'jitter' for small random variance to stop exactly overlapping points
+# less accurate but great to see large patterns emerge
+
+ggplot(data=mpg) + geom_point(mapping=aes(x=displ, y=hwy), position="jitter")
+
 ggplot(data=mpg) + geom_point(mapping=aes(x=cyl, y=hwy))
 ggplot(data=mpg) + geom_point(mapping=aes(x=drv, y=hwy))
 
@@ -64,7 +75,7 @@ ggplot(data=mpg) +
    geom_smooth(mapping=aes(x=displ, y=hwy, colour=drv, linetype=drv))
 
 
-# better syntax: defaults in ggplot overriden locally for mix/merge
+# better syntax: defaults in ggplot then overriden locally for mix/merge effect
 ggplot(data=mpg, mapping=aes(x=displ, y=hwy)) + 
   geom_point(mapping=aes(colour=class)) +
   geom_smooth()
@@ -79,13 +90,117 @@ ggplot(data=mpg, mapping=aes(x=displ, y=hwy)) +
 
 # also: size, alpha (transparency), shape (max 6 default)
 # plus can override value for whole graph
-# facets = subplots displaying subset of data
+
+# facets = ordered subplots displaying subset of data
 # pass discrete var to factet_wrap ~ means formular from vars
 
 ggplot(data=mpg) + 
        geom_point(mapping=aes(x=displ, y=hwy)) +
        facet_wrap( ~ class, nrow=2)
 
+ggplot(data=mpg) + 
+  geom_point(mapping=aes(x=displ, y=hwy)) +
+  facet_grid(drv ~ cyl) # use , to turn off facet for dimension (. ~ cyl)
+
+# geoms and stats
+
 ggplot(data=diamonds) +
        geom_bar(mapping=aes(x=cut))
+
+# geom_bar transforms data from source to visual
+# using 'count' stat(istic) by default (see ?geom_bar)
+# better to explicitly state, then can specify any stat
+# stats and geoms can be interchanged, both default to one type of other
+# over 20 stat functions to play with -- see cheatsheet
+
+ggplot(data=diamonds) +
+  stat_count(mapping=aes(x=cut)) # same as above
+
+ggplot(data=diamonds) +
+  geom_bar(mapping=aes(x=cut, colour=cut))
+
+ggplot(data=diamonds) +
+  geom_bar(mapping=aes(x=cut, fill=cut)) # colour per bar
+
+ggplot(data=diamonds) +
+  geom_bar(mapping=aes(x=cut, fill=clarity), position="stack") # colour stacked within bar
+
+ggplot(data=diamonds) +
+  geom_bar(mapping=aes(x=cut, fill=clarity), position="fill") # 100% stacked
+
+ggplot(data=diamonds) +
+  geom_bar(mapping=aes(x=cut, fill=clarity), position="dodge") # side by side
+
+# flip axis to make more readable
+
+ggplot(data=mpg, mapping=aes(x=class, y=hwy)) + 
+  geom_boxplot()
+
+ggplot(data=mpg, mapping=aes(x=class, y=hwy)) + 
+  geom_boxplot() +
+  coord_flip()
+
+# ggplot template, 7 components for any plot!!!
+# dataset, geom, mapping, stat, position adjustment, coord system, faceting scheme
+# ggplot defaults useful except data, mappings and geoms
+
+# ggplot(data = <DATA>) + 
+#   <GEOM_FUNCTION>(
+#     mapping = aes(<MAPPINGS>),
+#     stat = <STAT>, 
+#     position = <POSITION>
+#   ) +
+#   <COORDINATE_FUNCTION> +
+#   <FACET_FUNCTION>
+
+# see 3.10 in r4ds website/book
+# use_snake_case for names, alt shift k for keyboard shotcuts
+
+# TRANSFORM
+
+# install.packages("nycflights13")
+
+library(nycflights13)
+library(tidyverse) 
+# note conflicts - overwrites filter() and lg() with tidyverse versions
+# would use stats::filter() and stats::lg() syntax for originals
+
+?flights
+flights
+
+# dplyr: 
+# filter()    - where, select rows, pick observations by value
+# arrange()   - sort rows
+# select()    - pick variables by name (rename() useful)
+# mutate()    - create variables from existing vars
+# summarise() - collapse vars to summary
+
+# all can be used with group_by()
+# all have format: dataframe, var arguments, new dataframe
+# chain together as needed
+
+# where
+filter(flights, month==1, day==1)
+filter(flights, month==11 | month == 12)
+filter(flights, month %in% c(11,12)
+# NA must be requested (c(1, NA, 3)) or is.na(x) | x > 1
+
+# doubles cause rounding errors
+# sqrt(2) ^2 == 2 FALSE     near(sqrt(2) ^2, 2) TRUE
+
+# sort
+arrange(flights, year, month, day) # NA at end
+arrange(flights, desc(arr_delay))
+
+# select cols
+select(flights, year, month, day)
+select(flights, year:day) #all cols between named
+select(flights, -(year:day)) #all cols except named
+# see starts/ends_with contains matches etc
+
+# move to start of dataset
+select(flights, time_hour, air_time, everything())
+
+rename(flights, tail_num = tailnum)
+
 
