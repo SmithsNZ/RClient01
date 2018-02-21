@@ -7,6 +7,7 @@
 # blog.revoultionaryanalytics.com
 # https://bookdown.org
 # http://rstudio.com/cheatsheets
+# https://www.datacamp.com/community/tutorials/pipe-r-tutorial
 
 # r4ds.had.co.nz/index.html
 # import wrangle (tidy+transform) visualise (surprise you) model (scale) communicate
@@ -202,5 +203,64 @@ select(flights, -(year:day)) #all cols except named
 select(flights, time_hour, air_time, everything())
 
 rename(flights, tail_num = tailnum)
+
+# add/change vars (temp tables)
+
+# new dataset from existing
+flights_sml <- 
+  select(flights, 
+         year:day, 
+         ends_with("delay"), 
+         distance, 
+         air_time)
+
+# add vars
+mutate(flights_sml,
+       gain = arr_delay - dep_delay,
+       speed = distance / air_time * 60)
+
+# or use transmute to just keep new vars
+
+# transmute must take vectorised functions (values are recycled)
+
+# = x * 5 ... * / * etc %/% int division, %% remainder
+# = x / sum(x) # proportion
+# = x - mean(x) # difference from mean
+# log2 useful for proportionalising magnitudes
+# lag() / lead() like min/max
+# min_rank(x), row_number(), dense_rank(), min_rank(desc(x)) 
+
+# summarise collapses to single row
+
+summarise(flights, delay = mean(dep_delay, na.rm=TRUE))
+
+# better on grouped dataset rather than whole dataset
+
+by_day <- group_by (flights, year, month, day)
+
+summarise(by_day, delay = mean(dep_delay, na.rm=TRUE))
+
+# note pipe symbol x %>%
+
+delays <- flights %>% 
+  group_by(dest) %>% 
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = TRUE),
+    delay = mean(arr_delay, na.rm = TRUE)
+  ) %>% 
+  filter(count > 20, dest != "HNL")
+
+x <- c(0.109, 0.359, 0.63, 0.17)
+
+round(exp(diff(log(x))), 1)
+
+# result of fn passed as first param to next fn in pipe
+# use place holder dot if don't want first param
+# 6 %>% round(p1, digits=.)
+
+x %>% log() %>% diff() %>% exp() %>% round(1)
+
+# View(flights_sml)
 
 
