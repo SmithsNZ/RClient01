@@ -8,6 +8,7 @@
 # https://bookdown.org
 # http://rstudio.com/cheatsheets
 # https://www.datacamp.com/community/tutorials/pipe-r-tutorial
+# http://www.cookbook-r.com/graphs
 
 # r4ds.had.co.nz/index.html
 # import wrangle (tidy+transform) visualise (surprise you) model (scale) communicate
@@ -42,6 +43,7 @@
 # package 'xml2' successfully unpacked and MD5 sums checked
 # package 'tidyverse' successfully unpacked and MD5 sums checked
 
+getwd()
 
 # VISUALISE
 
@@ -186,6 +188,9 @@ filter(flights, month==11 | month == 12)
 filter(flights, month %in% c(11,12)
 # NA must be requested (c(1, NA, 3)) or is.na(x) | x > 1
 
+# avoid null propagation for group bys
+filter(flights, !is.na(dep_delay), !is.na(arr_delay))
+
 # doubles cause rounding errors
 # sqrt(2) ^2 == 2 FALSE     near(sqrt(2) ^2, 2) TRUE
 
@@ -262,5 +267,173 @@ round(exp(diff(log(x))), 1)
 x %>% log() %>% diff() %>% exp() %>% round(1)
 
 # View(flights_sml)
+
+
+head(flights)
+str(flights)
+class (flights)
+
+# create grouped table for other dply verbs eg summarise
+by_day <- group_by (flights, year, month, day)
+class(by_day)
+
+summarise(by_day, delay = mean(dep_delay, na.rm=TRUE))  # 365 observations
+
+by_dest <- group_by(flights, dest)
+
+# count non-missing sum(!is.na(x)) # better to fillter out, also n_distinct(x), count()
+delay <- summarise(by_dest, 
+                   count=n(), 
+                   dist=mean(distance, na.rm=T),
+                   delay=mean(arr_delay, na.rm=T))
+
+delay <- filter(delay, count>20, dest!="HNL")
+
+ggplot(data=delay, mapping=aes(x=dist, y=delay)) +
+      geom_point(aes(size=count), alpha=1/3) +
+      geom_smooth(se=F)
+
+not_cancelled <- filter(flights, !is.na(dep_delay), !is.na(arr_delay))
+# View(not_cancelled)
+
+by_tailNum <- group_by(not_cancelled, tailnum)
+
+# classic arrow shape (>) as more observations reduce variance
+delay2 <- summarise(by_tailNum, delay=mean(arr_delay, na.rm=T), n=n())
+
+# filter out small observations to make overall pattern more obvious
+# delay2 <- filter(delay2, n>25)
+
+ggplot(data=delay2, mapping=aes(x=n, y=delay)) +
+  geom_point(alpha=1/10)
+
+daily <- group_by(flights, year, month, day)
+
+(per_day <- summarise(daily, flights=n()))
+
+(per_month <- summarise(per_day, flights=sum(flights)))
+
+(per_year <- summarise(per_month, flights=sum(flights)))
+
+ungroup(daily)
+(summarise(daily, flights=n())) #umm
+
+# more - see r4ds.had.co.nz 5.6 / 5.7
+
+# EXPLORE DATA
+
+# variation = distribution of change of continuous variable (may be errs in measurement)
+
+# if catagorical, visualise with bar chart, numeric bin with histogram
+
+# pattern in data shows relationship between variables
+
+str(diamonds)
+std(diamonds)
+
+ggplot(data=diamonds) +
+  geom_bar(mapping=aes(x=cut))
+
+count(diamonds, cut)
+
+ggplot(data=diamonds) +
+  geom_histogram(mapping=aes(x=carat), binwidth=0.5)
+
+#zoom in
+diamonds_small <- filter(diamonds, carat <3)
+
+ggplot(data=diamonds_small) +
+  geom_histogram(mapping=aes(x=carat), binwidth=0.1)
+
+#and again to show pattern of sub groups!!
+ggplot(data=diamonds_small, mapping=aes(x=carat)) +
+  geom_histogram(binwidth=0.01)
+
+summary(diamonds$carat)
+summary(diamonds$clarity)
+summary(diamonds)
+ggplot(data=diamonds) +
+  geom_histogram(mapping=aes(x=carat), binwidth=0.01)
+
+# find bad data / outliers (x, y, z== dimensions of diamond)
+filter(diamonds, y<3 | y>20)
+# replace it with na, so does not distort aggratations
+diamonds2 <- mutate(diamonds, y=ifelse(y<3 | y>20, NA, y))
+summary(diamonds$y)
+summary(diamonds2$y)
+
+# can convert to flag using is.na(var) if useful data
+
+# COVARIATION == relationship between vars (variation == withon one var)
+
+# catagorical vs continuous
+ggplot(data=diamonds, mapping=aes(x=price)) +
+  geom_freqpoly(mapping=aes(colour=cut), binwidth=500)
+
+ggplot(data=diamonds, mapping=aes(x=price)) +
+  geom_bar(mapping=aes(x=cut))
+
+# ..density.. ??
+
+ggplot(data=diamonds, mapping=aes(x=cut, y=price)) +
+  geom_boxplot()
+
+ggplot(data=mpg, mapping=aes(x=class, y=hwy)) +
+  geom_boxplot()
+
+# reorder to see trend
+ggplot(data=mpg, mapping=aes(x=reorder(class, hwy, FUN=median), y=hwy)) +
+  geom_boxplot()
+
+ggplot(data=mpg, mapping=aes(x=reorder(class, hwy, FUN=median), y=hwy)) +
+  geom_boxplot() +
+  coord_flip()
+
+# cat vs cat
+ggplot(data=diamonds) +
+  geom_count(mapping=aes(x=cut, y=color))
+
+diamond_heat <- count(diamonds, color, cut)
+
+# scatter
+ggplot(data=diamond_heat, mapping=aes(x=color, y=cut)) +
+  geom_tile(mapping=aes(fill=n))
+
+ggplot(data=diamonds) +
+  geom_point(mapping=aes(x=carat, y=price))
+
+# stop volume overwhelming pattern
+ggplot(data=diamonds) +
+  geom_point(mapping=aes(x=carat, y=price), alpha = 0.01)
+
+# eruption length vs wait time shows pattern indicating relationship
+ggplot(data=faithful) +
+  geom_point(mapping=aes(x=eruptions, y=waiting), alpha = 1)
+
+
+# variation increases uncertainty, covariation reduces it (7.6)
+# because if 2 vars covary, you can use the value of A to better predict A
+
+# if covariation is due to causation then A be used to control B
+
+# models are tools to extract patterns out of data
+# ================================================
+
+# diamonds: cut vs price relationship obscured by cut vs carat and carat vs price
+# can use model to remove price vs carat to see what's left
+# eg fit model to predict price from carat
+#       then find residuals (diff between actual and predicted price)
+#       to show price of diamond without effect of carat
+
+library(modelr)
+
+mod <- lm(log(price) ~ log(carat), data = diamonds)
+
+diamonds2 <- mutate(add_residuals(diamonds, mod), resid=exp(resid))
+
+ggplot(data=diamonds2) +
+  geom_point(mapping=aes(x=carat, y=resid), alpha = 1)
+
+# got to part 2 wrangle == ch 9 
 
 
