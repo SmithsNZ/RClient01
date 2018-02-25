@@ -435,5 +435,119 @@ ggplot(data=diamonds2) +
   geom_point(mapping=aes(x=carat, y=resid), alpha = 1)
 
 # got to part 2 wrangle == ch 9 
+??tibble
+
+library(tidyverse)
+library(nycflights13)
+
+df <- tibble(
+  x=runif(5),
+  y=rnorm(5))
+
+df$x
+df[["x"]]
+df[[1]]
+# [] always return another tibble
+as.data.frame(df) # for some fns which only take data frames
+
+d = parse_date(c("12 dec 2018", "1976-12-23"))
+problems(d)
+fruit <- c("apple", "banana")
+parse_factor(c("apple", "banana", "bananana"), levels = fruit)
+#parse_ logical, integer, double, number(flexible), character, factor, datetime, date, time
+#for when data already in character vector
+#same set available as col_ fns to tll readr how to load data
+
+charToRaw("Bob")
+parse_date("01/02/15", "%m/%d/%y")  #11.3.4
+
+#use read_csv with coltypes override if guess is not correct
+#stop_with_problems aborts script on bad data
+
+#easier to read everything as chars and type_convert/problems within data frame
+
+challenge2 <- read_csv(readr_example("challenge.csv"), 
+                       col_types = cols(.default = col_character())
+)
+
+type_convert(challenge2)
+# see readxl and jsonlite/xml2
+# write out csv, or rds (binary format) or feather library (11.5)
+
+# gathering - convert cols to rows when reading data
+# spreading -convert rows to cols
+# seperate - split col into multiples
+# unite - combine cols to one
+
+planes
+
+delay <- summarise(by_dest, 
+                   count=n(), 
+                   dist=mean(distance, na.rm=T),
+                   delay=mean(arr_delay, na.rm=T))
+
+delay <- filter(delay, count>20, dest!="HNL")
 
 
+p2 <- count(planes,tailnum)
+filter(p2, n>2)
+
+f2 <- count(flights,year,month,day,flight)
+filter(f2, n>2)
+
+select(flights, dep_time)
+
+x <- tribble(
+  ~key, ~val_x,
+  1, "x1",
+  2, "x2",
+  3, "x3"
+)
+y <- tribble(
+  ~key, ~val_y,
+  1, "y1",
+  2, "y2",
+  4, "y3"
+)
+
+# shared col also left, right etc
+select(inner_join(x, y, by="key"), "val_x", "val_y")
+
+# named cols
+select(left_join(flights, airports, c("dest" = "faa")), "dest", "carrier")
+
+# also set operations intersect, union, setdiff
+
+
+library(stringr)
+str_length("hello")
+(str_c("Hi", " ", "There", " ", c("bob", "fred")))
+
+x <- c("Apple", "Banana", "Pear")
+str_sub(x, 1, 3)
+str_extract(x, ".a.")
+str_detect(x, "e")
+words[str_detect(words, "[aeiou]$")]
+
+# seq_along, str_count, str_split
+
+library(forcats)
+
+x1 <- c("Dec", "Apr", "Jan", "Mar")
+
+month_levels <- c(
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+)
+
+y1 <- factor(x1, levels = month_levels) #if levels not supplied, taken from data 15.2
+y1
+sort(y1)
+levels(y1)
+
+gss_cat
+count(gss_cat, race)
+# use fct_recode to rename factors
+# lubridate date times see ch 16
+
+# got to 20.3

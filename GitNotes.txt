@@ -28,6 +28,7 @@ git --version
 git config --global user.name "SmithsNZ"
 git config --global user.email "smithsnz@gmail.com"
 
+# pwd S...2
 #first time
 #clone remote repository (creates folder for repository)
 
