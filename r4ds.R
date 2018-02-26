@@ -551,3 +551,42 @@ count(gss_cat, race)
 # lubridate date times see ch 16
 
 # got to 20.3
+# vectors null == absence of vector, NA == absence of value in vector
+# logical, integer(L), double, character (most complex wins when mixed)
+
+# as.logical() as.integer(), as.double(), as.character()
+
+# purr fns is_logical/integer/double/numeric/character/atomic/list/vector
+#          plus is_scaler_atomic/... also checks length == 1 (single value)
+
+# everything is a vector (no single numbers)
+# tidyverse only recycles scalers, use rep fn to for recycling
+
+x <- 1:10
+# vector subsetting [c(3,4)], [c(-1, -2)] [T,F,T] eg [!is.na(x)]
+c(x=1, y=2, z=3)
+set_names(1:3, c("a", "b", "c"))
+
+# can then reference with character vector x[c("a", "c")]
+
+L = list(2, "First", c(1,2,3), list(1, c("Hi", "There")))
+str(L) # str() good for lists as shows structure
+
+# [ returns list, [[ returns single component, $name, [["a"]]
+
+# attributes are names list of vectors attached to any object
+x <- 1:10
+attr(x, "greeting") <- "Hi"
+attr(x, "farewell") <- "Bye"
+attributes(x)
+
+# Names, Dimensions and Classes are attributes
+# generic methods call function name based on class of first argument
+as.Date
+methods(as.Date)
+
+# typeof, length, + meta data -> augmented vectors
+# factors (on int vectors), date/time (on numeric vectors), df & tibbles (on lists)
+# is.finite(), is.infinite(), is.nan(), near
+
+
