@@ -653,3 +653,143 @@ map_dbl(df, mean)
 #
 # semi-supervised outputs for some (expensive) but not most data (cheap) available
 
+# Models are used for exploration or Inference (confirming hypothesis is true)
+#   Observation used for exploration or confirmation (not both)
+#   Can use observation multiple time for exploration
+#     but only once for confirmation (otherwise its exploration)
+#   Confirmation requires data independant from the data used
+#     to generate the hypothesis, otherwise you will be over optimistic
+#   DO NOT sell exploratory analysis as confirmatory analysis 
+#               - it is fundamentally misleading
+#
+#   To do confirmatory analysis can split data before starting:
+#     60% training set (exploration)
+#     20% query set (compare models, visualisations by hand - not allowed to use as part of automated process)
+#     20% test set (use ONCE to test final model)
+
+# Modelling 
+#   (1) define family of models which express generic pattern you want to capture
+#       eg y=a1x^2+a2x+a3 where x,y from data, a1,a2,a3 parameters to vary pattern
+#   (2) generate fitted model by finding model from family which is closest to data
+#       eg y=3x^2+7x-2
+#   closest fit does not mean right - All models are wrong, but some are useful
+
+
+library(tidyverse)
+library(modelr)
+options(na.action = na.warn)
+
+str(sim1)
+sim1
+ggplot(sim1, aes(x,y)) + # show strong pattern in data -- looks linear ax+b
+  geom_point()
+
+View(sim1)
+
+# visualise possible models (lines) to fit data
+models <- tibble(a1=runif(250, -20, 40), a2=runif(250, -5,5)) # runif() == rand()
+
+ggplot(sim1, aes(x,y)) + # show strong pattern in data -- looks linear a1x+a2
+  geom_abline(data=models, aes(intercept=a1, slope=a2), alpha=0.25) +
+  geom_point()
+
+# 250 lines/models, many really bad - need to find models closest to data
+# want vertical distance between each point and model
+# eg diff of y value from model (prediction) vs y value from data (response)
+
+# calculate results for using model fn a1x + a2 against data
+model01 <- function (a_vars, data) {
+  a_vars[1] * data$x + a_vars[2]
+}
+
+model01 (c(7, 1.5), sim1) # shows 30 results for model (line)
+
+# want to get avg of fit as one number for comparison (using root mean square)
+
+model01_distance <- function (mod, data) {
+  diff <- data$y  - model01(mod, data)
+  sqrt(mean(diff ^2))
+}
+
+model01_distance (c(7, 1.5), sim1) # shows 1 number representing data fit to line fn
+
+# compute distance for all models
+
+sim1_distance <- function(a1, a2) {
+  model01_distance(c(a1,a2), sim1)
+}
+
+# get result from model for each set of params 
+Model01_fit <- map2_dbl(models$a1, models$a2, sim1_distance)
+
+# add to original data
+m2 <- mutate (models, Model01_fit)
+
+# scatter plot of model vars results highlghted to show best models
+ggplot(models, aes(a1,a2)) + 
+  geom_point(data=filter(m2, rank(Model01_fit) <=10), size=4, colour="red") +
+  geom_point(aes(color=-Model01_fit))
+
+# top 10
+m2_top <- filter(m2, rank(Model01_fit) <= 10)
+
+# plot 10 best lines
+ggplot(sim1, aes(x,y)) + 
+  geom_abline(data=m2_top, aes(slope=a1, intercept=a2, colour = -Model01_fit)) +
+  geom_point()
+
+
+
+# rather keep narrowing down parameters for best fit
+# can find optimised values (distance==0) with optim fn
+
+best <- optim(c(0,0), model01_distance, data=sim1)
+
+# and show best fit
+ggplot(sim1, aes(x,y)) + 
+  geom_abline(slope=best$par[1], intercept=best$par[2]) +
+  geom_point()
+
+# all above actually available in linear regression model lm
+
+lm_mod <- lm(y ~ x, data=sim1)
+coef(lm_mod) # just like that!
+
+# can visualise predictions to understand model
+# residuals observations after removing predictions are very useful
+
+# create grid that covers region where data lies and overlay best fit
+# better technique than geom_abline as works with any model 
+
+grid <- data_grid(sim1, x)
+
+grid <- add_predictions(grid, lm_mod)
+
+ggplot(sim1, aes(x,y)) + 
+  geom_line(aes(y=pred), data=grid, colour="red", size=1) +
+  geom_point()
+
+# prediction == pattern model has captured
+# residuals == pattern model has missed
+#              (same y values as above == distance between observed and predicted)
+
+s1 <- sim1
+s1 <- add_predictions(s1, lm_mod)
+s1 <- add_residuals(s1, lm_mod)
+
+# visualise spread of predictions from observed values (avg residuals always 0)
+
+ggplot(s1, aes(resid)) + 
+  geom_freqpoly(binwidth=0.5)
+
+# plot residuals - looks like random noise (no pattern)
+# so model has probably done a goos job of ccapturing patterns in dataset
+
+ggplot(s1, aes(x, resid)) + 
+  geom_ref_line(h=0) +
+  geom_point()
+
+# got to 23.4
+
+
+
