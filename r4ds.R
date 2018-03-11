@@ -783,13 +783,79 @@ ggplot(s1, aes(resid)) +
   geom_freqpoly(binwidth=0.5)
 
 # plot residuals - looks like random noise (no pattern)
-# so model has probably done a goos job of ccapturing patterns in dataset
+# so model has probably done a good job of capturing patterns in dataset
 
 ggplot(s1, aes(x, resid)) + 
   geom_ref_line(h=0) +
   geom_point()
 
 # got to 23.4
+# Visualise predictions - powerful technique
+
+ggplot(sim2) + 
+  geom_point(aes(x,y))
+
+# read ~ as formula with y dependent on x, note type of mod2 == call
+# eg model definition, with coefficients calculated for model, 
+# but not actual predictions for each value of x
+
+mod2 <- lm(y ~ x, data = sim2)
+
+# create gird of evenly spaced values around region where our data lies
+# (great for visualising)
+
+# copy data, add pred col using model
+g1 <- data_grid(sim2, x)
+g1 <- add_predictions(g1, lm_mod) # in this case predicts mean for each category
+
+ggplot(sim2, aes(x)) + 
+  geom_point(aes(y = y)) +
+  geom_point(data=g1, aes(y=pred), colour="red", size=4)
+
+# can't predict levels you did not observe (obviously)
+add_predictions(tibble(x="hello"), mod2) 
+
+# continuous and catagorical vars
+sim3
+str(sim3)
+
+# can model 2 ways
+  
+m1 <- lm(y~x1+x2, data=sim3) # + models effect of each var independently
+m2 <- lm(y~x1*x2, data=sim3) # * models effect of all interactions and components
+
+# viz data
+ggplot(sim3, aes(x1, y)) +
+  geom_point(aes(colour=x2))
+
+# grid of surrounding values for viz
+
+g2 <- data_grid(sim3, x1, x2)
+g2 <- gather_predictions(g2, m1, m2) # add prediction row for each model supplied
+str(g2)
+count(g2, x2)
+
+# viz models on data 
+ggplot(sim3, aes(x1, y, colour=x2)) +
+  geom_point() +
+  geom_line(data=g2, aes(y=pred)) +
+  facet_wrap(~ model)
+
+# note m1 uses same gradient for each line with different intercepts
+#      m2 has different gradients with different intercepts
+
+# which is better? visualise residuals
+
+g3 <- gather_residuals(sim3, m1, m2)
+
+# viz residuals 
+ggplot(g3, aes(x1, resid, colour=x2)) +
+  geom_point() +
+  facet_grid(model ~ x2)
+
+# can see just noise left by m2 (great)
+# whilst m1 leave pattern in b and possibly c and d as well(so could be better)
 
 
 
+                
