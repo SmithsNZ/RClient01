@@ -95,7 +95,7 @@ ggplot(data=mpg, mapping=aes(x=displ, y=hwy)) +
 # plus can override value for whole graph
 
 # facets = ordered subplots displaying subset of data
-# pass discrete var to factet_wrap ~ means formular from vars
+# pass discrete var to factet_wrap ~ means formula from vars
 
 ggplot(data=mpg) + 
        geom_point(mapping=aes(x=displ, y=hwy)) +
