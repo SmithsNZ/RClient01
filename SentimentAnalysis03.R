@@ -5,13 +5,13 @@ text <- c("Because I could not stop for Death -",
 
 text
 
-library(dplyr) # tibbles == df with good print, no auto factos, no row names
+library(tidyverse) # tibbles == df with good print, no auto factos, no row names
 text_df <- data_frame(line=1:4, text=text)
 
-install.packages("tidytext")
+# install.packages("tidytext") # dplyr == data pliers
 library(tidytext)
-installed.packages()
 
+# installed.packages()
 # last package loaded wins conflicts - can detach
 # conflicts(detail = TRUE)
 # getAnywhere(x="show")
@@ -79,7 +79,7 @@ tokens <- unnest_tokens(x2, word, text)
 # reshapes for read and pivot betwen rows cols example (melt, cast)
 # convert from df with as_tibble()
 
-/arrange/mutate/summarise/glimpse
+# /arrange/mutate/summarise/glimpse
 
 nrc_joy <-
   get_sentiments("nrc") %>%
@@ -88,6 +88,7 @@ nrc_joy <-
 View(tokens)
 glimpse(tokens)
 
+# top 10
   tokens %>%
   filter(book=="Pride & Prejudice") %>%
   inner_join(nrc_joy) %>%
@@ -97,16 +98,140 @@ glimpse(tokens)
   
   get_sentiments("bing")
   
-  library(dplyr)
-  
-  tokens %>%
+  library(tidyverse) # ggplot2, tibble, tidyr, readr, purrr
+
+  x3 <-
+    tokens %>%
     filter(book=="Pride & Prejudice") %>%
-    inner_join(get_sentiments("bing")) %>%
-    count(word, linenumber, bin = linenumber / 50, sentiment) %>%
-    spread(sentiment, n, fill=0)
+    inner_join(get_sentiments("bing"), by="word") %>%
+    count(word, linenumber, bin = linenumber %/% 50, sentiment) %>%
+    spread(sentiment, n, fill=0) %>%
+    mutate(y=positive-negative)
   
+  ggplot(x3, aes(x=bin, y=y)) +
+    geom_col()
+  
+  glimpse(x3)
+  str(x3)
+  count(x3, bin, y)
+  
+  x3 %>% 
+    filter(negative==2 | positive==2)
+  
+  spread(x3, sentiment, n, fill=0)
   
   df <- data.frame(x = c("a", "b"), y = c(3, 4), z = c(5, 6))
   df %>% spread(x, y) %>% gather(x, y, a:b, na.rm = TRUE)
   
   getAnywhere(x="spread")
+  
+  library(RODBC)
+  
+  # db <- odbcDriverConnect('driver={SQL Server};server=ccosqlbidi01;database=WA01Warehouse;trusted_connection=true')
+  
+  db <- odbcDriverConnect('driver={SQL Server};server=localhost\\SQLEXPRESS;database=DataDB01;trusted_connection=true')
+
+  load(tibble)
+
+  ds01 <- sqlQuery(db, 'select * from Test01', stringsAsFactors=FALSE)
+  ds01 <- as_tibble(ds01)
+  
+  glimpse(ds01)
+  
+  library(tidyverse) # ggplot2, tibble, tidyr, readr, purrr
+  
+  x3 <-
+    tokens %>%
+    filter(book=="Pride & Prejudice") %>%
+    inner_join(get_sentiments("bing"), by="word") %>%
+    count(word, linenumber, bin = linenumber %/% 50, sentiment) %>%
+    spread(sentiment, n, fill=0) %>%
+    mutate(y=positive-negative)
+  
+  ggplot(x3, aes(x=b
+  
+  pp <- # 122k rows
+   tokens %>%
+   filter(book=="Pride & Prejudice")
+  
+   pp_afinn <-
+     pp %>%
+     inner_join(get_sentiments("afinn"), by="word") %>%
+     group_by(bin = linenumber %/% 80) %>%
+     summarise(sentiment = sum(score)) %>%  
+     mutate(method="AFINN")
+   
+   View(pp_afinn)
+   
+   pp_bing <-
+     pp %>%
+     inner_join(get_sentiments("bing"), by="word") %>%
+     mutate(method="bing")
+   
+   pp_nrc <-
+     pp %>%
+     inner_join(get_sentiments("nrc"), by="word") %>%
+     mutate(method="nrc") %>%
+     filter(sentiment %in% c("positive", "negative")) %>%
+     count(method, bin = linenumber %/% 80, sentiment) %>%
+     spread(sentiment, n, fill=0) %>%
+     mutate(y=positive-negative)
+  
+   
+
+   pp_pivot <-
+     pp %>%
+     inner_join(get_sentiments("nrc"), by="word") %>%
+     # filter(sentiment %in% c("positive", "negative")) %>%
+     arrange(linenumber) %>%
+     mutate(rowid=row_number(), method="nrc", score=1, bin = linenumber %/% 80) %>%
+     spread(sentiment, score, fill=0)
+
+   pp_pivot <-
+     pp %>%
+     inner_join(get_sentiments("nrc"), by="word") %>%
+     mutate(rowid= row_number(), method= "nrc", score= 1, bin= linenumber %/% 80) %>%
+     group_by(bin, sentiment) %>%
+     summarise(sentiment_score= sum(score)) %>%
+     spread(sentiment, sentiment_score, fill= 0) %>%
+     mutate(overall= positive - negative)
+       
+  # https://rpubs.com/bradleyboehmke/data_wrangling looks good 
+  # and https://rpubs.com/bradleyboehmke/29134 !!
+    
+  # filter(). arrange(), select/rename(), mutate/transmute(), sample_n/frac() 
+  # group_by(), summarise(a=n(), b=sum(), c=mean()), head(arrange(), desc())
+  # n_distinct(), min(), max(), mean(), sum(), sd(), median(), IQR(), first(x), last(x) and nth(x, n)
+  # mutate(y=positive-negative)
+   
+  pp_pivot %>%
+  ggplot(aes(x=bin, y=overall)) + 
+    geom_col()
+   
+  get_sentiments("nrc")
+  get_sentiments("bing")
+  View(get_sentiments("afinn"))
+  
+  get_sentiments("bing") %>% 
+    count(sentiment)
+  
+  pp %>%
+  inner_join(get_sentiments("bing"), by="word") %>%
+  count(word, sentiment, sort=TRUE)
+  
+  library(wordcloud)
+  
+  stop_words <- tibble(word= c("good","great"))
+  
+  # top 10
+  pp %>%
+    inner_join(get_sentiments("bing"), by="word") %>%
+    anti_join(stop_words, by="word") %>%
+    group_by(word) %>%
+    summarise(wordcount= n()) %>%
+    arrange(desc(wordcount)) %>%
+    top_n(50) %>%
+    with( wordcloud(word, wordcount, colors=c("black","Red")))
+  
+acast
+top_n
