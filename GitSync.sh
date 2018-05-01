@@ -11,8 +11,10 @@ fi
 
 echo
 echo Committing local changes:
+
 git add *
 git commit -a -m $1
+git push
 
 echo
 echo Fetching master and merging with local, remote wins if conflict:
@@ -22,4 +24,5 @@ git merge -s recursive -X theirs origin/master
 
 echo
 echo Showing any local files not on remote master FYI:
+
 git clean -dn
