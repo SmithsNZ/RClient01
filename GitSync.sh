@@ -21,5 +21,5 @@ git fetch origin master
 git merge -s recursive -X theirs origin/master
 
 echo
-echo show any local files not on remote master
+echo Showing any local files not on remote master
 git clean -dn
