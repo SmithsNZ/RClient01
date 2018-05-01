@@ -1,5 +1,5 @@
 echo
-echo full directory
+echo Full directory:
 
 ls -la
 
@@ -10,16 +10,16 @@ if [ "$#" -eq  "0" ]
 fi
 
 echo
-echo Committing local changes
+echo Committing local changes:
 git add *
 git commit -a -m $1
 
 echo
-echo Fetching master and merging with local, remote wins if conflict
+echo Fetching master and merging with local, remote wins if conflict:
 
 git fetch origin master
 git merge -s recursive -X theirs origin/master
 
 echo
-echo Showing any local files not on remote master
+echo Showing any local files not on remote master FYI:
 git clean -dn

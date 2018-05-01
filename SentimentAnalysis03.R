@@ -1,15 +1,3 @@
-text <- c("Because I could not stop for Death -",
-          "He kindly stopped for me -",
-          "The Carriage held but just Ourselves -",
-          "and Immortality")
-
-text
-
-library(tidyverse) # tibbles == df with good print, no auto factos, no row names
-text_df <- data_frame(line=1:4, text=text)
-
-# install.packages("tidytext") # dplyr == data pliers
-library(tidytext)
 
 # installed.packages()
 # last package loaded wins conflicts - can detach
@@ -17,6 +5,28 @@ library(tidytext)
 # getAnywhere(x="show")
 # x = "show" 
 # names(which(sapply(search(), FUN = function(env) exists(x, env, inherits = FALSE, mode = "function"))))
+
+# text <- c("Because I could not stop for Death -",
+#           "He kindly stopped for me -",
+#           "The Carriage held but just Ourselves -",
+#           "and Immortality")
+# 
+# text
+# text_df <- data_frame(line=1:4, text=text)
+
+# install.packages("readr")
+# install.packages("tidyverse")  # lots... dplyr == data pliers, pipes
+# install.packages("tidytext")   # sentiment analysis
+
+library(readr) # csv file reader
+library(tidyverse) # tibbles == df with good print, no auto factos, no row names
+library(tidytext) # 
+
+# spec_tsv("c:\\data\\RFSData01.txt")
+rfs <- read_tsv("c:\\data\\RFSData01.txt")
+
+rfs$RFSText
+
 
 unnest_tokens(text_df, word, text)
 #fn(tbl, output col, input col) defaults to word grain, keeps other cols, lcased
