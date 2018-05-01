@@ -17,6 +17,21 @@ git reset --hard origin/master     # reset local master branch from remote lates
 
 ######################################################
 
+# Commit local changes
+ git add *
+ git commit -a -m "local file server commit message"
+ 
+# Then fetch the changes and overwrite local with remote (theirs) if there is a conflict
+
+ git fetch origin master
+ git merge -s recursive -X theirs origin/master
+
+# show any local files not on remote master
+ git clean -dn 
+ 
+## change to c drive (tab to autocomplete words)
+cd /c/ 
+ 
 ## FIRST TIME
 
 http://ebb.org/bkuhn/blog/2011/01/23/git-shared-repository-tutorial.html
