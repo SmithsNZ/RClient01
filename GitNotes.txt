@@ -9,9 +9,13 @@ git push                # push local changes to remote repository
 # useful 
 git status              # show differences between local files and local repostory
 
-## UPDATE LOCAL REPOSITORY
+## UPDATE LOCAL REPOSITORY (OVERWRITES)
 
-git pull origin
+git fetch --all   # download latest from remote
+
+git reset --hard origin/master     # reset local master branch from remote latest
+
+######################################################
 
 ## FIRST TIME
 
