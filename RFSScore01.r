@@ -15,18 +15,16 @@
 # objects() # or ls()
 # rm(res) #remove object from workspace
 
-# install.packages("readr")      # csv support
-# install.packages("tidyverse")  # tibbles, data pliers, pipes
+# install.packages("tidyverse")  # ggplot2, dply, tidyr, readr, purrr, tibble, stringr, forcats
 # install.packages("tidytext")   # sentiment analysis
 # install.packages("RODBC")      # ODBC sql
 
-library(readr) 
-library(tidyverse)
+library(tidyverse) # https://www.tidyverse.org/packages/
 library(tidytext)
 library(RODBC)
 
 # spec_tsv("c:\\data\\RFSData01.txt")
-RFS <- read_tsv("c:\\data\\RFSData01.txt") 
+RFS <- read_tsv("c:\\data\\RFSData01.txt") S
 
 View(RFS)
 str(RFS)
